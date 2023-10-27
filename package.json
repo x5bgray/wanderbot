@@ -1,0 +1,23 @@
+{
+  "name": "wanderbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.50.0"
+  },
+  "dependencies": {
+    "msgpack": "file:msgpack-node",
+    "nan": "^2.18.0",
+    "node-gyp": "^9.4.0",
+    "sharer": "^1.4.0",
+    "winston": "^3.10.0",
+    "winston-array-transport": "^1.1.11",
+    "ws": "^8.14.2"
+  }
+}

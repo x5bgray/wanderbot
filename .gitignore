@@ -1,0 +1,6 @@
+/.eslintrc.json
+/.vscode
+/build
+/msgpack-node
+/node_modules
+/sharer-node
