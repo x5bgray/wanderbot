@@ -12,20 +12,12 @@ class Conditional {
         this.callback = cond_data.call;
         this.args = args;
     }
+
     run() {
         if (!this.condition()) { return; }
         return this.callback(...this.args);
     }
 }
-
-const MessageHandler = {
-    setPlayer: (obj, mgr, data) => {
-        obj.player = data;
-    },
-    resources: (obj, mgr, data) => {
-        obj.resources = data;
-    },
-};
 
 class Bot extends EventEmitter {
     constructor(mgr, name, group, mode) {
@@ -45,6 +37,13 @@ class Bot extends EventEmitter {
             gold:0,
             water:0,
         };
+
+        this.autorespawn = false;
+
+        this.on('death', () => { if (this.autorespawn) {this.send('respawn');} });
+        this.on('error', () => { bot.socket.close(); });
+        this.on('close', () => { this.run(); });
+    
     }
 
     send(key, data) {
@@ -67,7 +66,7 @@ class Bot extends EventEmitter {
     targetSid(sid) {
         this.target = this.parent.entities.get(sid);
     }
-    async connect() {
+    async run() {
         debug.logger.debug('Running Bot');
 
 
@@ -97,9 +96,9 @@ class Bot extends EventEmitter {
                 message.data = data;
             }
 
-            const handler = MessageHandler[message.key];
-            if (handler) {
-                handler(this, this.parent, message.data);
+            const handlerFunc = this.handler[message.key];
+            if (handlerFunc) {
+                handlerFunc(message.data);
             }
 
             this.emit(message.key, message.data);
@@ -113,12 +112,23 @@ class Bot extends EventEmitter {
         this.socket.addEventListener('error', (res) => {
             debug.logger.warn(`Websocket ERROR: ${res}`);
         });
-    }
+    } 
     step() {
+        let target = this.parent.entities.filter((e)=>{return (
+		//e.name === 'Swarm' || e.name === 'TakeTheShit' ||
+		//e.name === 'JustOneTab' || e.name === 'lxl' || 
+		//e.name === 'ALVARO' || e.name === 'liil' ||
+		//e.name === 'YU' || e.name === 'val' ||
+		e.name === 'CutDown' )});
+        if(target){
+            this.send('move', {x: target[0].x, y: target[0].y});
+        }
+        /*
         this.tasks.step();
         for (const cond of this.conditionals) {
                 cond.run();
         }
+        */
     }
     addCond(cond_data, ...args) {
         const cond = new Conditional(this, cond_data, ...args)
@@ -133,6 +143,24 @@ class Bot extends EventEmitter {
     }
     removeTask(task) {
         this.tasks.remove(task);
+    }
+    respawn() {
+        this.send(respawn);
+    }
+    setAutoRespawn(b) {
+        if (b) {
+            this.autorespawn = b;
+            return;
+        }
+        this.autorespawn = this.autorespawn ? false : true;
+    }
+    handler = {
+        setPlayer: (data) => {
+            this.player = data;
+        },
+        resources: (data) => {
+            this.resources = data;
+        },
     }
 }
 

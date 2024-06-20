@@ -1,4 +1,8 @@
-const msgpack = require('msgpack');
+const msgjs = require('msgpack.js');
+const msgpack = {
+    pack: msgjs.encode,
+    unpack: msgjs.decode,
+}
 const sharer_data = require('./sharerdata');
 const debug = require('./debug');
 

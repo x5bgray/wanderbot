@@ -12,7 +12,7 @@
     "eslint": "^8.50.0"
   },
   "dependencies": {
-    "msgpack": "file:msgpack-node",
+    "@ygoe/msgpack": "file:msgpack.js",
     "nan": "^2.18.0",
     "node-gyp": "^9.4.0",
     "sharer": "^1.4.0",

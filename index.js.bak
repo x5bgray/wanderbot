@@ -1,0 +1,110 @@
+const Bots = require('./BotManager'); // Import BotManager module
+const utils = require('./utils'); // Import utils module 
+const REPL = require('repl'); // Import REPL module for interactive shell
+
+const bots = new Bots; // Create BotManager instance
+
+bots.addBots(10, 'Guard', 'r1ck'); // Add 3 bots
+
+
+/**
+ * Defines a task to make the bot attack a target entity.
+ * 
+ * @param {string} sid - The ID of the target entity to attack.
+ */
+const task_attack = {
+
+  /**
+   * Initialize the task with the target ID
+   * @param {string} sid - ID of entity to attack  
+   */
+    init: function(sid) {
+        this.sid = sid; // Store target ID
+        this.target = bots.entities.get(sid); // Get target entity
+    },
+  
+  /**
+   * Main logic to execute the attack
+   */
+    call: function(){
+        const player = bots.entities.get(this.bot.player); // Get bot entity
+          
+        const distance = utils.getDistance(player.x, player.y, this.target.x, this.target.y); // Calculate distance
+  
+        if(distance >= 10) { // If far away, move towards target
+            this.bot.move(this.target.x, this.target.y) 
+        }
+    },
+  
+  /**
+   * Check if target still exists
+   * @returns {Entity} The target entity if still exists
+   */
+    cond: function() {
+        this.target = bots.entities.get(this.sid); 
+        return this.target; 
+    },
+}
+
+// Condition to check if enough resources to recruit
+const cond_recruit = {
+
+  /**
+   * Check if enough food resources
+   * @returns {boolean} True if enough food
+   */
+    cond: function(){
+        return (this.bot.resources.food >= 5); 
+    },
+
+  /** 
+   * Send recruit command
+   */
+    call: function(){
+        this.bot.send('recruit');
+    }
+}
+
+// Condition to check if enough resources to equip  
+const cond_equip = {
+  
+   /**
+   * Check if enough wood resources
+   * @returns {boolean} True if enough wood
+   */
+    cond: function(){
+        return (this.bot.resources.wood >= 5);
+    },
+  
+   /**
+    * Find tribesman and equip with hammer
+    */
+    call: function(){
+        let tribesmen = bots.entities.filter((ent)=> {
+            return (ent.constructorName === 'Tribesman' && 
+                    ent.group_sid === this.bot.player &&
+                    ent.weapon === 0);
+        });
+        if(tribesmen.length === 0) { return; }
+
+        let man = tribesmen.shift();
+
+        this.bot.send('equip', {key: 'hammer', target: man.sid});
+    }
+}
+
+// Add recruit condition to all bots
+bots.addCondAll(cond_recruit);
+
+// Add equip condition to all bots  
+bots.addCondAll(cond_equip);
+
+// Start bot logic
+bots.run();
+
+// Create REPL shell with bots context
+const repl = REPL.start('> ');
+repl.context.bots = bots;
+repl.context.task_attack = task_attack;
+repl.context.global = global;
+
