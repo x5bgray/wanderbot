@@ -4,52 +4,43 @@ const Bot = require('./bot');
 const Entities = require('./entities');
 const conv = require('./conv');
 
-const task_attack = {
+const { EventEmitter } = require('events');
 
-    /**
-     * Initialize the task with the target ID
-     * @param {string} sid - ID of entity to attack  
-     */
-      init: function(sid) {
-          this.sid = sid; // Store target ID
-          this.target = this.bot.parent.entities.get(sid); // Get target entity from bot's manager
-      },
-    
-    /**
-     * Main logic to execute the attack
-     */
-      call: function(){
-          const player = this.bot.parent.entities.get(this.bot.player); // Get bot entity
-            
-          const distance = utils.getDistance(player.x, player.y, this.target.x, this.target.y); // Calculate distance
-    
-          if(distance >= 10) { // If far away, move towards target
-              this.bot.move(this.target.x, this.target.y) 
-          }
-      },
-    
-    /**
-     * Check if target still exists
-     * @returns {Entity} The target entity if still exists
-     */
-      cond: function() {
-          this.target = bots.entities.get(this.sid); 
-          return this.target; 
-      },
+
+const URL = "https://wanderers.io/client/server/";
+
+async function getURL() {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+  
+      const serv_url = await response.text()
+      debug.logger.debug("Current Server: " + serv_url);
+      return serv_url
+    } catch (error) {
+      debug.logger.error(error.message);
+    }
   }
 
-class Bots {
+class Bots extends EventEmitter {
     constructor(ctx) {
+        debug.stack.enter("Bots.constructor");
+        super()
         ctx = ctx || {};
-        this.url = 's14421783116';
+        this.url = undefined;
         this.entities = new Entities;
         this.stepDelay = ctx.stepDelay || 5000;
         this.children = [];
         this.name = ctx.name || 'XBot';
         this.group = ctx.group || 'r1ck';
         this.mode = ctx.mode || 'Castle';
+        debug.stack.exit()
     }
     run() {
+        debug.stack.enter("Bots.run");
+        getURL.then(res => )
         if (this.children.length === 0 ) {
             debug.logger.warn('No bots added. Add bots to run first');
         }
@@ -70,8 +61,11 @@ class Bots {
                 bot.run();
             }
         }, 5000);
+
+        debug.stack.exit()
     }
     addBot(name, group, mode) {
+        debug.stack.enter()
         name = name || this.name;
         group = group || this.group;
         mode = mode || this.mode;
@@ -104,7 +98,6 @@ class Bots {
             bot.move(x,y);
         }
     }
-
 
     snapshot(bot, data) {
         data.entities.forEach((ent_data) => {

@@ -2,7 +2,6 @@ const debug = require('./debug');
 
 const { WebSocket } = require('ws');
 const { EventEmitter } = require('events');
-const {Tasks} = require('./tasks');
 const conv = require('./conv');
 
 class Conditional {
@@ -21,11 +20,11 @@ class Conditional {
 
 class Bot extends EventEmitter {
     constructor(mgr, name, group, mode) {
-        debug.logger.debug('Constructing Bot App');
         super();
+        console.log("test")
+        debug.logger.warn('Constructing Bot App');
         this.parent = mgr;
         this.conditionals = [];
-        this.tasks = new Tasks(this);
         this.connected = false;
         this.name = name;
         this.group = group;
@@ -114,35 +113,7 @@ class Bot extends EventEmitter {
         });
     } 
     step() {
-        let target = this.parent.entities.filter((e)=>{return (
-		//e.name === 'Swarm' || e.name === 'TakeTheShit' ||
-		//e.name === 'JustOneTab' || e.name === 'lxl' || 
-		//e.name === 'ALVARO' || e.name === 'liil' ||
-		//e.name === 'YU' || e.name === 'val' ||
-		e.name === 'CutDown' )});
-        if(target){
-            this.send('move', {x: target[0].x, y: target[0].y});
-        }
-        /*
-        this.tasks.step();
-        for (const cond of this.conditionals) {
-                cond.run();
-        }
-        */
-    }
-    addCond(cond_data, ...args) {
-        const cond = new Conditional(this, cond_data, ...args)
-        this.conditionals.push(cond);
-        return cond;
-    }
-    removeCond(cond) {
-        this.conditionals.splice(this.conditionals.indexOf(cond), 1);
-    }
-    addTask(task_data, ...args) {
-        return this.tasks.add(task_data, ...args);
-    }
-    removeTask(task) {
-        this.tasks.remove(task);
+        
     }
     respawn() {
         this.send(respawn);

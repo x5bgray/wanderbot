@@ -1,7 +1,7 @@
 /.eslintrc.json
 /.vscode
 /build
-/msgpack-node
+/msgpack.js
 /node_modules
 /sharer-node
 node_modulesa   cd w

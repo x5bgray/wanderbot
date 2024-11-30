@@ -11,7 +11,7 @@ function exit() {
 
 const logs = new Array;
 const logger = winston.createLogger({
-    level: 'debug',
+    level: 'info',
     format: combine(errors({ stack: true }), timestamp(), cli()),
     transports: [
         new winston.transports.Console(),
